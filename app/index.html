@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Neon Coast Cover Studio</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<main class="app">
+  <section class="panel" aria-label="Cover controls">
+    <h1>Neon Coast<br>Cover Studio</h1>
+    <p class="tagline">Turn your photos into a multi-panel cover, GTA-poster style. Everything runs on your machine — no uploads.</p>
+
+    <h2>1 · Photos</h2>
+    <label class="file-btn">Add photos (up to 4)
+      <input id="photos" type="file" accept="image/*" multiple>
+    </label>
+    <div id="tray" class="tray" aria-label="Loaded photos"></div>
+    <div class="row">
+      <button id="samples" type="button">Use sample photos</button>
+      <button id="fillall" type="button">Fill all panels with this photo</button>
+    </div>
+    <p class="hint">Click a thumbnail to put that photo in the selected panel. Drag a panel to move its photo, scroll over it to zoom.</p>
+
+    <h2>2 · Layout</h2>
+    <div class="row seg" id="layouts" role="group" aria-label="Layout">
+      <button type="button" data-layout="hero">Hero + 3</button>
+      <button type="button" data-layout="grid2">Grid 2×2</button>
+      <button type="button" data-layout="grid3">Grid 3×3</button>
+      <button type="button" data-layout="full">Full bleed</button>
+    </div>
+
+    <h2>3 · Colour grade</h2>
+    <div class="row seg" id="grades" role="group" aria-label="Colour grade">
+      <button type="button" data-grade="sunset">Sunset</button>
+      <button type="button" data-grade="neon">Neon</button>
+      <button type="button" data-grade="vice">Vice</button>
+      <button type="button" data-grade="gold">Gold</button>
+      <button type="button" data-grade="mono">Mono</button>
+    </div>
+
+    <h2>4 · Lettering</h2>
+    <label>Title <input id="title" type="text" maxlength="24" value="NEON COAST"></label>
+    <label>Subtitle <input id="subtitle" type="text" maxlength="40" value="a vice city story"></label>
+    <label>Badge ribbon <input id="badge" type="text" maxlength="18" value="EST. 2026"></label>
+
+    <h2>5 · Export</h2>
+    <div class="row seg" id="sizes" role="group" aria-label="Export size">
+      <button type="button" data-size="1080x1080">1080 × 1080</button>
+      <button type="button" data-size="1080x1350">1080 × 1350</button>
+      <button type="button" data-size="1920x1080">1920 × 1080</button>
+    </div>
+    <div class="row">
+      <button id="undo" type="button">Undo</button>
+      <button id="redo" type="button">Redo</button>
+      <button id="export" type="button" class="primary">Export PNG</button>
+    </div>
+    <p id="status" role="status"></p>
+  </section>
+
+  <section class="stage" aria-label="Cover preview">
+    <canvas id="cover" width="1080" height="1080" aria-label="The cover preview"></canvas>
+    <p class="hint">Selected panel: <span id="active-panel">1</span> · drag to pan, scroll to zoom</p>
+  </section>
+</main>
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>
