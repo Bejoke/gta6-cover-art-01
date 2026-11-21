@@ -1,40 +1,72 @@
-// Hands in the Neon Coast Cover Studio entry for gta6-cover-art-01 (Node 22, standard library only).
-// The app itself is plain static files in this directory's app/ folder — index.html plus its ES modules,
-// local OFL fonts and sample photos, nothing fetched over the network — and this program is the handoff:
-// it copies app/ and screenshots/ from beside this file into /output and writes /output/dossier.json,
-// the summary the judge reads, using the vendored make.fun library. The cover maker it ships is a
-// multi-panel poster studio: up to four of the user's own photos, four layouts, five colour grades,
-// display title, script subtitle and badge ribbon, per-panel crop and zoom, undo/redo, and PNG export
-// in 1080 x 1080, 1080 x 1350 and 1920 x 1080. No Rockstar logo, artwork or font anywhere in it.
+// Neon Coast Cover Studio — hand-in program.
 //
-// Serve the app locally with `node serve.ts`, then open http://localhost:8080.
-// Outside the grader's container, MAKEFUN_OUTPUT_DIR stands in for /output:
-//   mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts
+// Copies the app and its screenshots into the output directory and writes
+// the dossier the scorer rebuilds from them. Run with `node main.ts`.
+// Outside the grader, MAKEFUN_OUTPUT_DIR stands in for /output.
 
-import { cpSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildDossier } from './vendor/makefun-app.ts';
 
-const here = fileURLToPath(new URL('.', import.meta.url));
-const out = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
+const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)));
 
-mkdirSync(out, { recursive: true });
-cpSync(join(here, 'app'), join(out, 'app'), { recursive: true });
-mkdirSync(join(out, 'screenshots'), { recursive: true });
-if (existsSync(join(here, 'screenshots'))) cpSync(join(here, 'screenshots'), join(out, 'screenshots'), { recursive: true });
+// The output directory: the grader's /output, or the env override when
+// the program runs on a developer machine.
+function outputDir(): string {
+  const fromEnv = process.env.MAKEFUN_OUTPUT_DIR;
+  if (fromEnv !== undefined && fromEnv !== '') return resolve(fromEnv);
+  return '/output';
+}
 
-// The scorer's own caps (reference/gate.json): only text_max_bytes shapes the bytes; the rest refuse an
-// entry the scorer would refuse (more than 4 screenshots or one over 256 KiB; more than 993 files in
-// app/ or 48 MiB of app files in all, or a path under app/ over 1000 bytes: app/ counts beside
-// /output's own 1000-entry cap, its screenshots/ and dossier.json).
-writeFileSync(
-  join(out, 'dossier.json'),
-  buildDossier(out, {
+// Copy a directory tree, entries in sorted order so repeated runs agree.
+function copyTree(from: string, to: string): number {
+  let copied = 0;
+  mkdirSync(to, { recursive: true });
+  const names = readdirSync(from).sort();
+  for (const name of names) {
+    const src = join(from, name);
+    const dst = join(to, name);
+    const info = statSync(src);
+    if (info.isDirectory()) {
+      copied += copyTree(src, dst);
+    } else if (info.isFile()) {
+      writeFileSync(dst, readFileSync(src));
+      copied += 1;
+    }
+  }
+  return copied;
+}
+
+function main(): void {
+  const out = outputDir();
+  rmSync(out, { recursive: true, force: true });
+  mkdirSync(out, { recursive: true });
+
+  const appFiles = copyTree(join(REPO_ROOT, 'app'), join(out, 'app'));
+  const shotFiles = copyTree(join(REPO_ROOT, 'screenshots'), join(out, 'screenshots'));
+
+  // The dossier needs at least one screenshot, the first of which is the
+  // cover. Fail early with a plain message instead of a deep stack trace.
+  if (shotFiles === 0) {
+    throw new Error(
+      'screenshots/ holds no image: add the cover first (screenshots/1-cover.jpg)',
+    );
+  }
+
+  const dossier = buildDossier(out, {
     text_max_bytes: 163840,
     screenshots: { max: 4, max_bytes: 262144 },
     app_max_files: 993,
     app_max_bytes: 50331648,
-    app_path_max_bytes: 1000,
-  }),
-);
+  });
+  writeFileSync(join(out, 'dossier.json'), dossier);
+  console.log(`screenshots: ${shotFiles} file(s) in the hand-in`);
+
+  console.log(
+    `Neon Coast Cover Studio handed in: ${appFiles} app files, ` +
+      `${shotFiles} screenshots, dossier ${dossier.length} bytes -> ${out}`,
+  );
+}
+
+main();

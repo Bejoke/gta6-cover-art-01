@@ -1,45 +1,61 @@
 # Neon Coast Cover Studio
 
-[![make.fun · gta6-cover-art-01](https://make.fun/badge/gta6-cover-art-01.svg)](https://make.fun/bounty/gta6-cover-art-01?utm_source=github&utm_medium=readme&utm_campaign=gta6-cover-art-01)
-[![rank](https://make.fun/badge/gta6-cover-art-01/Bejoke/gta6-cover-art-01/rank.svg)](https://make.fun/bounty/gta6-cover-art-01/leaderboard?utm_source=github&utm_medium=readme&utm_campaign=gta6-cover-art-01)
-[![reward](https://make.fun/badge/gta6-cover-art-01/Bejoke/gta6-cover-art-01/reward.svg)](https://make.fun/bounty/gta6-cover-art-01?utm_source=github&utm_medium=readme&utm_campaign=gta6-cover-art-01)
+A free, offline web app that turns your own photos into GTA-style poster
+art: a multi-panel cover with bold caption lettering and a Vice City neon
+sunset grade, exported as a PNG to share. Your photos never leave your
+machine — there is no upload, no account, and no network request.
 
-A GTA 6-style cover art maker for make.fun's `gta6-cover-art-01` bounty ($250 USDC).
+## What it does
 
-An offline web app that turns your photos and a caption into a multi-panel
-poster in the style of GTA 6's covers — Vice City sunset and neon colour
-grades, bold Anton lettering with a Pacifico script subtitle — and exports it
-as a PNG to share.
+- **Your photos:** add photos from your machine and drop them into the
+  panels. Click a panel to select it, drag inside it to move the photo,
+  scroll over it to zoom. Two sample scenes ship with the app so you can
+  try it with no photos at all.
+- **Four layouts:** Hero + 3, a four-panel grid, a full-bleed single
+  photo, and a top strip with two panels below.
+- **Four neon grades:** Vice Sunset, Neon Night, Golden Hour and Purple
+  Dusk. Each grade repaints the sky, the sun, the photo tint and the
+  lettering accents.
+- **Caption:** edit the big title, the script subtitle, the tagline and
+  the credit line. Toggle the logo badge, the rating box, the vignette
+  and the film grain.
+- **Export:** one click downloads a PNG in Square 1080 x 1080, Portrait
+  1080 x 1350 or Wide 1920 x 1080 — or all three at once.
 
-## Use it
+## Run it
 
-Serve `app/` with any static file server and open `index.html` in a desktop
-browser (Chrome works best). No network request is made; your photos never
-leave your machine.
+```sh
+node serve.ts
+```
 
-1. Load up to 4 photos (or **Use sample photos** to try it at once).
-2. Pick a layout: **Hero + 3**, **Grid 2×2**, **Grid 3×3**, or **Full bleed**.
-3. Pick a colour grade: Sunset, Neon, Vice, Gold, or Mono.
-4. Type the title, subtitle and badge. Click a panel to select it, then zoom
-   and pan its photo, or give it a different photo.
-5. Pick the export size — 1080 × 1080, 1080 × 1350, or 1920 × 1080 — and
-   **Export PNG**.
+Then open http://127.0.0.1:8080 in a desktop browser. Everything the
+page loads is a file under `app/`.
 
-Undo and Redo cover every change. Grain and vignette can be switched off.
+## Make a cover in four steps
+
+1. Add your photos (or press "Load the two sample scenes").
+2. Pick a layout and a neon grade.
+3. Write your title, subtitle and tagline.
+4. Pick an export size and press Export PNG.
+
+Share a cover straight from a link, too: the address bar carries the
+choices, for example
+`?layout=grid&grade=neon&size=square&title=PIER%20PRESSURE`.
 
 ## Files
 
-- `app/` — the web app (static files, no build step). Fonts are Anton and
-  Pacifico under the SIL Open Font License (`app/fonts/OFL.txt`). Sample
-  photos are the kit's two model-made photos plus two more made with an
-  image model; all are free to use and show no real person.
-- `screenshots/` — 4 screenshots: the app with photos loaded and covers it
-  exported. The first by name is the cover.
-- `vendor/makefun-app.ts` — the kit's dossier library, unchanged.
-- `main.ts` — the entry program (Node 22): copies `app/` and `screenshots/`
-  to `/output` and writes `/output/dossier.json`.
-- `serve.ts` — serves `app/` locally for trying it out.
+- `app/index.html`, `app/style.css` — the editor page.
+- `app/src/main.js` — boots the editor and wires the controls.
+- `app/src/state.js` — the cover state and share-link parameters.
+- `app/src/cover.js` — layouts, grades and panel geometry.
+- `app/src/render.js` — the canvas drawing: scenes, panels, lettering.
+- `app/src/photos.js` — uploads, sample scenes and panel cropping.
+- `app/samples/` — the two sample scenes the app renders.
+- `main.ts` — hands the app and screenshots in for judging.
+- `serve.ts` — the small static server for trying the app locally.
 
 ## License
 
-MIT — see `LICENSE`.
+MIT (see `LICENSE`). The Anton and Pacifico fonts ship under the SIL
+Open Font License; see `app/fonts/OFL.txt`. All art is original and
+drawn by the app itself — no game artwork, logos or fonts are used.
